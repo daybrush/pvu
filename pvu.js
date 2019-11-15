@@ -34,7 +34,7 @@ packages.split(",").forEach(packagePath => {
     const originalVersions = originalVersion.replace(/^[^\d]?/g, "").split(".");
     const packageVersions = packageVersion.split(".");
 
-    const changedIndex = originalVersions.find((v, i) => v !== versions[i]);
+    const changedIndex = originalVersions.findIndex((v, i) => v !== versions[i]);
 
     if (changedIndex === -1) {
         return;
