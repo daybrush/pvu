@@ -40,7 +40,7 @@ packages.split(",").forEach(packagePath => {
         return;
     }
     const ov = splitUnit(originalVersions[changedIndex]);
-    const vv = splitUnit(versions);
+    const vv = splitUnit(versions[changedIndex]);
 
     if (ov.value === vv.value) {
         packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]) + vv.unit;
