@@ -43,7 +43,7 @@ packages.split(",").forEach(packagePath => {
     const vv = splitUnit(versions[changedIndex]);
 
     if (ov.value === vv.value) {
-        packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]) + vv.unit;
+        packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]);
     } else {
         packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]) + 1;
 
@@ -51,6 +51,7 @@ packages.split(",").forEach(packagePath => {
             packageVersions[i] = 0;
         }
     }
+    packageVersions[changedIndex] += vv.unit;
     const relativePath = path.relative(cwd, packagesFullPath);
     fs.writeFileSync(packageJSONPath, packageJSON.replace(packageVersion, packageVersions.join(".")), { encoding: "utf-8" });
     shell(`cd ${relativePath} && npm i ${name}@latest`);
