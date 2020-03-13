@@ -62,7 +62,6 @@ updatePaths.split(",").forEach(updatePath => {
         const ov = originalVersions[changedIndex];
         const [, vv, unit] = /(\d+)(.*)/g.exec(versions[changedIndex]);
 
-        console.log(ov, vv);
         if (ov !== parseFloat(vv)) {
             packageVersions[changedIndex] += 1;
 
