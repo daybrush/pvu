@@ -4,14 +4,13 @@
 const args = require("args");
 const path = require("path");
 const fs = require("fs");
-const { splitUnit } = require("@daybrush/utils");
 const { shell } = require("./utils");
 const cwd = process.cwd();
-const { name, version } = JSON.parse(fs.readFileSync(path.resolve(cwd, "package.json"), { encoding: "utf8" }));
 
 args
     .option("path", "package folder", "packages")
-    .option("name", "package name", name)
+    .option("name", "package name")
+    .option("base", "base module path", "./")
     .option("versionUpdate", "", true)
     .option("update", "update", "")
     .option("build", "build", "")
@@ -19,14 +18,17 @@ args
 
 const {
     path: packagesPath,
-    name: packageName,
+    name: argName,
     update: updatePaths,
     build: buildPaths,
+    base: basePath,
     publish: publishPaths,
     versionUpdate: isVersionUpdate,
 } = args.parse(process.argv);
+const { name, version } = JSON.parse(fs.readFileSync(path.resolve(cwd, basePath, "package.json"), { encoding: "utf8" }));
 
 
+const packageName = argName || name;
 const versions = version.split(".");
 
 updatePaths.split(",").forEach(updatePath => {
@@ -54,19 +56,21 @@ updatePaths.split(",").forEach(updatePath => {
         if (changedIndex === -1) {
             return;
         }
-        const ov = splitUnit(originalVersions[changedIndex]);
-        const vv = splitUnit(versions[changedIndex]);
+        packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]);
 
-        if (ov.value === vv.value) {
-            packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]);
-        } else {
-            packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]) + 1;
+
+        const ov = originalVersions[changedIndex];
+        const [, vv, unit] = /(\d+)(.*)/g.exec(versions[changedIndex]);
+
+        console.log(ov, vv);
+        if (ov !== parseFloat(vv)) {
+            packageVersions[changedIndex] += 1;
 
             for (let i = changedIndex + 1; i < 3; ++i) {
                 packageVersions[i] = 0;
             }
         }
-        packageVersions[changedIndex] += vv.unit;
+        packageVersions[changedIndex] += unit || "";
         fs.writeFileSync(packageJSONPath, packageJSON.replace(packageVersion, packageVersions.join(".")), { encoding: "utf-8" });
     }
     shell(`cd ${relativePath} && npm i ${packageName}@latest`);
