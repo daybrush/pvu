@@ -1,0 +1,28 @@
+{
+    "name": "test",
+    "private": true,
+    "version": "0.1.0",
+    "description": "packages version update",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "help": "node ./release.js --help"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/daybrush/pvu.git"
+    },
+    "author": "Daybrush",
+    "license": "MIT",
+    "bin": {
+      "pvu": "pvu.js"
+    },
+    "bugs": {
+      "url": "https://github.com/daybrush/pvu/issues"
+    },
+    "homepage": "https://github.com/daybrush/pvu#readme",
+    "dependencies": {
+      "@test/test": "^0.0.0-beta.1"
+    }
+  }
+  
