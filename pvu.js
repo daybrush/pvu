@@ -4,7 +4,7 @@
 const args = require("args");
 const path = require("path");
 const fs = require("fs");
-const { shell } = require("./utils");
+const { shell, update } = require("./utils");
 const cwd = process.cwd();
 
 args
@@ -28,53 +28,10 @@ const {
 const { name, version } = JSON.parse(fs.readFileSync(path.resolve(cwd, basePath, "package.json"), { encoding: "utf8" }));
 
 
-const packageName = argName || name;
-const versions = version.split(".");
+const rootName = argName || name;
 
-updatePaths.split(",").forEach(updatePath => {
-    if (!updatePath) {
-        return;
-    }
-    const packagesFullPath = path.resolve(packagesPath, updatePath);
-    const relativePath = path.relative(cwd, packagesFullPath);
+update(rootName, version, updatePaths, isVersionUpdate);
 
-    if (isVersionUpdate) {
-        const packageJSONPath = path.resolve(packagesFullPath, "package.json");
-        const packageJSON = fs.readFileSync(packageJSONPath, { encoding: "utf-8" });
-        const {
-            version: packageVersion,
-            dependencies,
-            devDependencies,
-        } = JSON.parse(packageJSON);
-
-        const originalVersion = (dependencies && dependencies[packageName]) || (devDependencies && devDependencies[packageName]);
-        const originalVersions = originalVersion.replace(/^[^\d]?/g, "").split(".");
-        const packageVersions = packageVersion.split(".");
-
-        const changedIndex = originalVersions.findIndex((v, i) => v !== versions[i]);
-
-        if (changedIndex === -1) {
-            return;
-        }
-        packageVersions[changedIndex] = parseFloat(packageVersions[changedIndex]);
-
-
-        const ov = originalVersions[changedIndex];
-        const [, vv, unit] = /(\d+)(.*)/g.exec(versions[changedIndex]);
-
-        if (ov !== parseFloat(vv)) {
-            packageVersions[changedIndex] += 1;
-
-            for (let i = changedIndex + 1; i < 3; ++i) {
-                packageVersions[i] = 0;
-            }
-        }
-        packageVersions[changedIndex] += unit || "";
-        fs.writeFileSync(packageJSONPath, packageJSON.replace(packageVersion, packageVersions.join(".")), { encoding: "utf-8" });
-    }
-    shell(`cd ${relativePath} && npm i ${packageName}@latest`);
-    shell(`cd ${relativePath.split("/").map(v => v ? ".." : "").join("/")}/`);
-});
 buildPaths.split(",").forEach(buildPath => {
     if (!buildPath) {
         return;
