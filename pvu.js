@@ -30,7 +30,7 @@ const { name, version } = JSON.parse(fs.readFileSync(path.resolve(cwd, basePath,
 
 const rootName = argName || name;
 
-update(rootName, version, updatePaths, isVersionUpdate);
+update(rootName, version, packagesPath, updatePaths, isVersionUpdate);
 
 buildPaths.split(",").forEach(buildPath => {
     if (!buildPath) {
