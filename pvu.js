@@ -12,6 +12,8 @@ args
     .option("name", "package name")
     .option("base", "base module path", "./")
     .option("versionUpdate", "", true)
+    .option("distUpdate", "", "")
+    .option("distPaths", "", "")
     .option("update", "update", "")
     .option("build", "build", "")
     .option("publish", "publish", "");
@@ -24,6 +26,8 @@ const {
     base: basePath,
     publish: publishPaths,
     versionUpdate: isVersionUpdate,
+    distUpdate: distUpdatePaths,
+    distPaths,
 } = args.parse(process.argv);
 const { name, version } = JSON.parse(fs.readFileSync(path.resolve(cwd, basePath, "package.json"), { encoding: "utf8" }));
 
@@ -51,4 +55,15 @@ publishPaths.split(",").forEach(publishPath => {
 
     shell(`cd ${relativePath} && npm publish`);
     shell(`cd ${relativePath.split("/").map(v => v ? ".." : "").join("/")}/`);
+});
+distUpdatePaths.split(",").forEach(distUpdatePath => {
+    if (!distUpdatePath) {
+        return;
+    }
+    distPaths.split(",").forEach((distPath) => {
+        if (!distPath) {
+            return;
+        }
+        shell(`cpx '${distPath}/**/*' ${packagesPath}/${distUpdatePath}/node_modules/${rootName}/${distPath} --clean`);
+    });
 });
